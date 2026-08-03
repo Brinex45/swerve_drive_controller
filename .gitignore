@@ -1,0 +1,16 @@
+# VS Code
+.vscode/
+
+# Database files
+*.db
+
+# ROS 2
+build/
+install/
+log/
+
+# Temporary files
+*.o
+*.so
+*.a
+__pycache__/

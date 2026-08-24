@@ -1,0 +1,164 @@
+swerve_drive_controller:
+  module_type: {
+    type: string,
+    default_value: "",
+    description: "Whether the module is differential or non-differential.",
+    read_only: true,
+    validation: {
+      one_of<>: [["differential", "non_differential"]]
+    }
+  }
+
+  modules: {
+    type: string_array,
+    default_value: [],
+    description: "Names of the swerve modules, e.g. front_left, front_right, back_left, back_right.",
+    read_only: true,
+  }
+
+  module:
+    __map_modules:
+      motor1_joint: {
+        type: string,
+        default_value: "",
+        description: "Name of the first joint's command/state interface for this module. For a differential module, this is one leg of the coupled pair (not purely steer or drive — see DifferentialMixer). For a non-differential module, this is the steer joint.",
+        read_only: true,
+      }
+      motor2_joint: {
+        type: string,
+        default_value: "",
+        description: "Name of the second joint's command/state interface for this module. For a differential module, this is the other leg of the coupled pair. For a non-differential module, this is the drive joint.",
+        read_only: true,
+      }
+      module_position_x: {
+        type: double,
+        default_value: 0.0,
+        description: "Module's position from center of the chassis in x-axis (forward-positive)",
+        read_only: true,
+      }
+      module_position_y: {
+        type: double,
+        default_value: 0.0,
+        description: "Module's position from center of the chassis in y-axis (left-positive)",
+        read_only: true,
+      }
+      gear_ratio: {
+        type: double,
+        default_value: 1.0,
+        description: "Only for differential.",
+        read_only: true,
+        validation: {
+          gt<>: [0.0]
+        }
+      }
+      wheel_radius: {
+        type: double,
+        default_value: .nan,
+        description: "Radius of a wheel, i.e., wheels size, used for transformation of linear velocity into wheel rotations. If this parameter is wrong the robot will move faster or slower than expected.",
+        read_only: true,
+        validation: {
+          gt<>: [0.0]
+        }
+      }
+
+  steer_pid:
+    p: {
+      type: double,
+      default_value: 1.0,
+      description: "kp for steering in both module type.",
+      validation: {
+        gte<>: [0.0]
+      }
+    }
+    i: {
+      type: double,
+      default_value: 0.0,
+      description: "ki for steering in both module type.",
+      validation: {
+        gte<>: [0.0]
+      }
+    }
+    d: {
+      type: double,
+      default_value: 0.0,
+      description: "kd for steering in both module type.",
+      validation: {
+        gte<>: [0.0]
+      }
+    }
+    i_clamp_min: {
+      type: double,
+      default_value: 0.0,
+      description: "ki_clamp_min for steering in both module type.",
+      validation: {
+        gte<>: [0.0]
+      }
+    }
+    i_clamp_max: {
+      type: double,
+      default_value: 0.0,
+      description: "ki_clamp_max for steering in both module type.",
+      validation: {
+        gte<>: [0.0]
+      }
+    }
+  
+  tf_frame_prefix_enable: {
+    type: bool,
+    default_value: true,
+    description:  "Deprecated: this parameter will be removed in a future release. Use 'tf_frame_prefix' instead.",
+    read_only: true,
+  }
+  tf_frame_prefix: {
+    type: string,
+    default_value: "",
+    description:  "(optional) Prefix to be appended to the tf frames, will be added to odom_id and base_frame_id before publishing. If the parameter is empty, controller's namespace will be used.",
+    read_only: true,
+  }
+  odom_frame_id: {
+    type: string,
+    default_value: "odom",
+    description:  "Name of the frame for odometry. This frame is parent of ``base_frame_id`` when controller publishes odometry.",
+    read_only: true,
+  }
+  base_frame_id: {
+    type: string,
+    default_value: "base_link",
+    description: "Name of the robot's base frame that is child of the odometry frame.",
+    read_only: true,
+  }
+  pose_covariance_diagonal: {
+    type: double_array,
+    default_value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    description: "Odometry covariance for the encoder output of the robot for the pose. These values should be tuned to your robot's sample odometry data, but these values are a good place to start: ``[0.001, 0.001, 0.001, 0.001, 0.001, 0.01]``.",
+    read_only: true,
+  }
+  twist_covariance_diagonal: {
+    type: double_array,
+    default_value: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    description: "Odometry covariance for the encoder output of the robot for the speed. These values should be tuned to your robot's sample odometry data, but these values are a good place to start: ``[0.001, 0.001, 0.001, 0.001, 0.001, 0.01]``.",
+    read_only: true,
+  }
+
+  open_loop: {
+    type: bool,
+    default_value: false,
+    description: "If set to true the odometry of the robot will be calculated from the commanded values and not from feedback.",
+    read_only: true,
+  }
+  position_feedback: {
+    type: bool,
+    default_value: true,
+    description: "Is there position feedback from hardware.",
+    read_only: true,
+  }
+  enable_odom_tf: {
+    type: bool,
+    default_value: true,
+    description: "Publish transformation between ``odom_frame_id`` and ``base_frame_id``.",
+  }
+  cmd_vel_timeout: {
+    type: double,
+    default_value: 0.5, # seconds
+    description: "Timeout in seconds after which a command received on the ``cmd_vel`` topic is considered stale. A value of 0.0 disables the timeout.",
+  }

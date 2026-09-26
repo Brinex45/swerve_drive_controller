@@ -16,10 +16,13 @@
 class TestableSwerveDriveController : public swerve_drive_controller::SwerveDriveController
 {
 public:
+  using SwerveDriveController::command_interfaces_;
+  using SwerveDriveController::state_interfaces_;
   using SwerveDriveController::on_init;
   using SwerveDriveController::on_configure;
   using SwerveDriveController::on_activate;
   using SwerveDriveController::update;
+  using SwerveDriveController::received_velocity_msg_ptr_;  
 };
 
 class SwerveDriveControllerTest : public ::testing::Test
@@ -57,7 +60,6 @@ protected:
   std::unique_ptr<TestableSwerveDriveController> controller_;
 };
 
-// --- Test 1: does init() succeed with a complete, valid config? ---
 TEST_F(SwerveDriveControllerTest, InitSucceedsWithValidParams)
 {
   auto result = controller_->init(
@@ -85,7 +87,6 @@ TEST_F(SwerveDriveControllerTest, InitSucceedsWithValidParams)
   ASSERT_EQ(result, controller_interface::return_type::OK);
 }
 
-// --- Test 2: does configure() succeed right after a valid init()? ---
 TEST_F(SwerveDriveControllerTest, ConfigureSucceedsAfterInit)
 {
   controller_->init(
@@ -188,7 +189,7 @@ TEST_F(SwerveDriveControllerTest, ActivateSucceedsAfterConfigure)
 
   ASSERT_EQ(activate_result, controller_interface::CallbackReturn::SUCCESS);
 
-  TearDown();
+  // TearDown();
 }
 
 TEST_F(SwerveDriveControllerTest, UpdateSucceedsAfterActivate)
@@ -225,12 +226,16 @@ TEST_F(SwerveDriveControllerTest, UpdateSucceedsAfterActivate)
   motor1_vel_state_info.name = hardware_interface::HW_IF_VELOCITY;
   hardware_interface::InterfaceDescription motor1_vel_state_desc("motor1_joint", motor1_vel_state_info);
   hardware_interface::StateInterface motor1_vel_state(motor1_vel_state_desc);
+  bool ok1 = motor1_vel_state.set_value(0.0);
+  ASSERT_TRUE(ok1);
 
   // motor1: position (state)
   hardware_interface::InterfaceInfo motor1_pos_state_info;
   motor1_pos_state_info.name = hardware_interface::HW_IF_POSITION;
   hardware_interface::InterfaceDescription motor1_pos_state_desc("motor1_joint", motor1_pos_state_info);
   hardware_interface::StateInterface motor1_pos_state(motor1_pos_state_desc);
+  bool ok2 = motor1_pos_state.set_value(0.0);
+  ASSERT_TRUE(ok2);
 
   // motor2: velocity (command) — you already have this one
   hardware_interface::InterfaceInfo motor2_vel_cmd_info;
@@ -243,12 +248,16 @@ TEST_F(SwerveDriveControllerTest, UpdateSucceedsAfterActivate)
   motor2_vel_state_info.name = hardware_interface::HW_IF_VELOCITY;
   hardware_interface::InterfaceDescription motor2_vel_state_desc("motor2_joint", motor2_vel_state_info);
   hardware_interface::StateInterface motor2_vel_state(motor2_vel_state_desc);
+  bool ok3 = motor2_vel_state.set_value(0.0);
+  ASSERT_TRUE(ok3);
 
   // motor2: position (state)
   hardware_interface::InterfaceInfo motor2_pos_state_info;
   motor2_pos_state_info.name = hardware_interface::HW_IF_POSITION;
   hardware_interface::InterfaceDescription motor2_pos_state_desc("motor2_joint", motor2_pos_state_info);
   hardware_interface::StateInterface motor2_pos_state(motor2_pos_state_desc);
+  bool ok4 = motor2_pos_state.set_value(0.0);
+  ASSERT_TRUE(ok4);
 
   std::vector<hardware_interface::LoanedCommandInterface> command_interfaces;
   command_interfaces.emplace_back(motor1_vel_cmd);
@@ -264,11 +273,23 @@ TEST_F(SwerveDriveControllerTest, UpdateSucceedsAfterActivate)
   auto activate_result = controller_->on_activate(rclcpp_lifecycle::State());
 
   ASSERT_EQ(activate_result, controller_interface::CallbackReturn::SUCCESS);
-  
-  
 
-  // Now call update() and check that it returns OK.
-  auto update_result = controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration(0, 0));  ASSERT_EQ(update_result, controller_interface::return_type::OK);
+  auto twist_msg = std::make_shared<geometry_msgs::msg::TwistStamped>();
+  twist_msg->header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+  twist_msg->twist.linear.x = 0.1;   // pure forward motion, no strafe, no rotation
+  twist_msg->twist.linear.y = 0.0;
+  twist_msg->twist.angular.z = 0.0;
 
-  // TearDown();
+  controller_->received_velocity_msg_ptr_.writeFromNonRT(twist_msg);
+
+  auto update_result = controller_->update(rclcpp::Clock(RCL_ROS_TIME).now(), rclcpp::Duration(0, 10000000)); // 10ms period
+  ASSERT_EQ(update_result, controller_interface::return_type::OK);
+
+  auto motor1_cmd_value = motor1_vel_cmd.get_optional();
+  auto motor2_cmd_value = motor2_vel_cmd.get_optional();
+  ASSERT_TRUE(motor1_cmd_value.has_value());
+  ASSERT_TRUE(motor2_cmd_value.has_value());
+
+  EXPECT_NEAR(motor1_cmd_value.value(), 1.0, 1e-6);
+  EXPECT_NEAR(motor2_cmd_value.value(), 1.0, 1e-6);
 }

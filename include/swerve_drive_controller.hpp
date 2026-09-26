@@ -106,7 +106,7 @@ public:
   controller_interface::return_type update(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
-private:
+protected:
   // --- generated parameter access ---
   std::shared_ptr<swerve_drive_controller::ParamListener> param_listener_;
   swerve_drive_controller::Params params_;

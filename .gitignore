@@ -14,3 +14,11 @@ log/
 *.so
 *.a
 __pycache__/
+
+test_swerve_ik
+test_differential_mixer
+test_azimuth_estimator
+test_odometry
+test_sim_motor
+test_sim_module
+test_swerve_robot

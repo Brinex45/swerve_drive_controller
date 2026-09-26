@@ -140,16 +140,10 @@ swerve_drive_controller:
     read_only: true,
   }
 
-  open_loop: {
+  open_loop_odometry: {
     type: bool,
     default_value: false,
     description: "If set to true the odometry of the robot will be calculated from the commanded values and not from feedback.",
-    read_only: true,
-  }
-  position_feedback: {
-    type: bool,
-    default_value: true,
-    description: "Is there position feedback from hardware.",
     read_only: true,
   }
   enable_odom_tf: {

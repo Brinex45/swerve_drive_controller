@@ -19,9 +19,9 @@ namespace swerve_drive_controller
     };
 
     struct Twist{
-        double vx;
-        double vy;
-        double omega;
+        double vx = 0.0;
+        double vy = 0.0;
+        double omega = 0.0;
     };
 
     struct ModuleCommand{

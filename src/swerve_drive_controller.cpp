@@ -36,7 +36,7 @@ namespace swerve_drive_controller{
 
         for (const auto & module_name : params_.modules)
         {
-            const auto & module_params = params_.module.at(module_name);
+            const auto & module_params = params_.module.modules_map.at(module_name);
             config.names.push_back(module_params.motor1_joint + "/" + hardware_interface::HW_IF_VELOCITY);
             config.names.push_back(module_params.motor2_joint + "/" + hardware_interface::HW_IF_VELOCITY);
         }
@@ -51,7 +51,7 @@ namespace swerve_drive_controller{
 
         for (const auto & module_name : params_.modules)
         {
-            const auto & module_params = params_.module.at(module_name);
+            const auto & module_params = params_.module.modules_map.at(module_name);
 
             config.names.push_back(module_params.motor1_joint + "/" + hardware_interface::HW_IF_VELOCITY);
             config.names.push_back(module_params.motor2_joint + "/" + hardware_interface::HW_IF_VELOCITY);
@@ -80,7 +80,7 @@ namespace swerve_drive_controller{
 
         for (const auto & module_name : params_.modules)
         {
-            const auto & module_params = params_.module.at(module_name);
+            const auto & module_params = params_.module.modules_map.at(module_name);
 
             Module module;
             module.motor1_joint = module_params.motor1_joint;

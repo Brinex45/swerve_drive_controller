@@ -67,7 +67,7 @@ swerve_drive_controller:
       default_value: 1.0,
       description: "kp for steering in both module type.",
       validation: {
-        gte<>: [0.0]
+        gt_eq<>: [0.0]
       }
     }
     i: {
@@ -75,7 +75,7 @@ swerve_drive_controller:
       default_value: 0.0,
       description: "ki for steering in both module type.",
       validation: {
-        gte<>: [0.0]
+        gt_eq<>: [0.0]
       }
     }
     d: {
@@ -83,7 +83,7 @@ swerve_drive_controller:
       default_value: 0.0,
       description: "kd for steering in both module type.",
       validation: {
-        gte<>: [0.0]
+        gt_eq<>: [0.0]
       }
     }
     i_clamp_min: {
@@ -91,7 +91,7 @@ swerve_drive_controller:
       default_value: 0.0,
       description: "ki_clamp_min for steering in both module type.",
       validation: {
-        gte<>: [0.0]
+        gt_eq<>: [0.0]
       }
     }
     i_clamp_max: {
@@ -99,7 +99,7 @@ swerve_drive_controller:
       default_value: 0.0,
       description: "ki_clamp_max for steering in both module type.",
       validation: {
-        gte<>: [0.0]
+        gt_eq<>: [0.0]
       }
     }
   

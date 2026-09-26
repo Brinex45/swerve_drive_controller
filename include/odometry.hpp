@@ -29,8 +29,8 @@ namespace swerve_drive_controller
             vy_sum += m.command.speed * std::sin(m.command.angle);
         }
 
-        double vx_est = vx_sum / module_states.size();
-        double vy_est = vy_sum / module_states.size();
+        double vx_est = vx_sum / static_cast<double>(module_states.size());
+        double vy_est = vy_sum / static_cast<double>(module_states.size());
 
         for (const auto& m: module_states){
             double vx_i = m.command.speed * std::cos(m.command.angle);
@@ -45,7 +45,7 @@ namespace swerve_drive_controller
             omega_sum += (m.position.x * vy_rot - m.position.y * vx_rot) / r_sq;
         }
 
-        result.omega = omega_sum / module_states.size();
+        result.omega = omega_sum / static_cast<double>(module_states.size());
         result.vx = vx_est;
         result.vy = vy_est;
         return result;

@@ -96,13 +96,18 @@ namespace swerve_drive_controller{
             module.pid_gains.i_clamp_min = params_.steer_pid.i_clamp_min;
             module.pid_gains.i_clamp_max = params_.steer_pid.i_clamp_max;
 
+            control_toolbox::AntiWindupStrategy antiwindup_strat;
+            antiwindup_strat.type = control_toolbox::AntiWindupStrategy::LEGACY;
+            antiwindup_strat.i_min = module.pid_gains.i_clamp_min;
+            antiwindup_strat.i_max = module.pid_gains.i_clamp_max;
+
             module.pid = control_toolbox::Pid(
                 module.pid_gains.p,
                 module.pid_gains.i,
                 module.pid_gains.d,
-                module.pid_gains.i_clamp_max,
-                module.pid_gains.i_clamp_min,
-                /*antiwindup=*/ true);
+                std::numeric_limits<double>::infinity(),   // u_max — output clamp, unused; matches prior behavior of none
+                -std::numeric_limits<double>::infinity(),  // u_min
+                antiwindup_strat);
 
             modules_.push_back(std::move(module));
         }

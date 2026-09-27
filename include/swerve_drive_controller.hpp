@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <limits>
 
 #include <controller_interface/controller_interface.hpp>
 #include <control_toolbox/pid.hpp>
@@ -41,6 +42,13 @@ struct PID
   double i_clamp_max = 0.0;
 };
 
+inline control_toolbox::AntiWindupStrategy make_none_antiwindup_strategy()
+{
+  control_toolbox::AntiWindupStrategy strategy;
+  strategy.type = control_toolbox::AntiWindupStrategy::NONE;
+  return strategy;
+}
+
 // Runtime state for a single swerve module. Populated by copying validated
 // values out of params_ during on_configure() — see design note in chat:
 // params_ is not used directly in the hot control loop because (a) it can be
@@ -64,7 +72,11 @@ struct Module
   // hold internal integrator state; sharing one instance across modules
   // would let one module's windup bleed into another's.
   PID pid_gains;
-  control_toolbox::Pid pid;
+  control_toolbox::Pid pid{
+    0.0, 0.0, 0.0,
+    std::numeric_limits<double>::infinity(),
+    -std::numeric_limits<double>::infinity(),
+    make_none_antiwindup_strategy()};
 
   // Interface handles: raw pointers into controller_manager-owned interface
   // vectors, resolved once in on_activate() and cleared in on_deactivate().
